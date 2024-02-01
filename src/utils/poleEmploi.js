@@ -40,9 +40,9 @@ function getAccessToken(callback) {
 // Récupérer les offres d'emploi de l'API pole emploi
 exports.getPoleEmploiOffer = function getPoleEmploiOffer(callback) {
   getAccessToken(function (token) {
-    // Générer un nombre aléatoire entre 0 et 1000 pour la requête
+    // Générer un nombre aléatoire entre 0 et 1000 pour récupérer une offre aléatoire
     const randomizer = Math.floor(Math.random() * 1000);
-    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?range=${randomizer}-${randomizer}&sort=1`;
+    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?range=${randomizer}-${randomizer}&codeROM=M1810&departement=34&sort=1`;
     const options = {
       hostname: "api.pole-emploi.io",
       port: 443,
