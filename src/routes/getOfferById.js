@@ -7,7 +7,12 @@ router.get("/:id", function (req, res) {
     const idOffer = req.params.id;
     getPoleEmploiOfferById(idOffer, function (offerDetails) {
       if (offerDetails) {
-        res.send(offerDetails);
+        const offer = {
+          name: offerDetails.intitule,
+          level: offerDetails.experienceExige,
+          date: offerDetails.dateCreation,
+        };
+        res.send(offer);
       } else {
         res.send("Aucun détail trouvé pour cette offre.");
       }
