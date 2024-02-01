@@ -75,9 +75,9 @@ exports.getPoleEmploiOffer = function getPoleEmploiOffer(callback) {
   });
 };
 
-// Récupérer les offres d'emploi de l'API pole emploi à partir d'un id
+// Récupérer une offre d'emploi de l'API pole emploi à partir d'un id
 exports.getPoleEmploiOfferById = function getPoleEmploiOfferById(id, callback) {
-  getAccessToken(function(token) {
+  getAccessToken(function (token) {
     const pathOffers = `/partenaire/offresdemploi/v2/offres/${id}`;
     const options = {
       hostname: "api.pole-emploi.io",
