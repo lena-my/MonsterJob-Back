@@ -17,7 +17,7 @@ let getOffer = require("./src/routes/getOffer");
 let getOfferById = require('./src/routes/getOfferById')
 
 app.use("/getOffer", getOffer);
-app.use('/getOfferById/:id', getOfferById);
+app.use('/getOfferById', getOfferById);
 
 // On ajoute la gestion des erreurs 404
 app.use(({ res }) => {

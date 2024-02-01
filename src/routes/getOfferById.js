@@ -3,9 +3,8 @@ const { getPoleEmploiOfferById } = require("../utils/poleEmploi");
 
 const router = express.Router();
 
-router.get("/", function (req, res) {
-    const idOffer = req.params;
-    console.log(idOffer);
+router.get("/:id", function (req, res) {
+    const idOffer = req.params.id;
     getPoleEmploiOfferById(idOffer, function (offerDetails) {
       if (offerDetails) {
         res.send(offerDetails);
