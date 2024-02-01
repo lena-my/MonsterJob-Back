@@ -10,9 +10,11 @@ const port = process.env.PORT || 3000;
 app.use(morgan("dev")).use(bodyParser.json());
 
 let getOffer = require("./src/routes/getOffer");
+let getOffers = require("./src/routes/getOffers")
 let getOfferById = require("./src/routes/getOfferById");
 
 app.use("/getOffer", getOffer);
+app.use("/getOffers", getOffers);
 app.use("/getOfferById", getOfferById);
 
 // On ajoute la gestion des erreurs 404

@@ -110,3 +110,39 @@ exports.getPoleEmploiOfferById = function getPoleEmploiOfferById(id, callback) {
     req.end();
   });
 };
+
+// Récupérer les offres d'emploi de l'API pole emploi sous forme paginée
+exports.getPoleEmploiOffers = function getPoleEmploiOffers(callback) {
+  getAccessToken(function (token) {
+    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?codeROM=M1810&departement=34`;
+    const options = {
+      hostname: "api.pole-emploi.io",
+      port: 443,
+      path: pathOffers,
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + token.access_token,
+      },
+    };
+
+    const req = https.request(options, (res) => {
+      let offersInParts = [];
+
+      res.on("data", (data) => {
+        offersInParts.push(data);
+      });
+
+      res.on("end", (endOfRequest) => {
+        // Reconstruction des données à partir du buffer de la réponse
+        const body = Buffer.concat(offersInParts);
+        const result = JSON.parse(body);
+        callback(result);
+      });
+    });
+
+    req.on("error", (error) => {
+      console.error(error);
+    });
+    req.end();
+  });
+};
