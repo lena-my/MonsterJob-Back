@@ -175,3 +175,45 @@ exports.getPoleEmploiOffers = async function getPoleEmploiOffers() {
     throw error;
   }
 };
+
+// Filtrer des offres d'emploi par experience
+exports.getPoleEmploiOfferByExperience = async function getPoleEmploiOfferByExperience(experience) {
+  try {
+    if (accessToken === null) {
+      accessToken = await getAccessToken();
+    }
+
+    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?experienceExigence=${experience}`;
+    const options = {
+      hostname: "api.pole-emploi.io",
+      port: 443,
+      path: pathOffers,
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + accessToken,
+      },
+    };
+
+    return new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let offersInParts = [];
+
+        res.on("data", (data) => {
+          offersInParts.push(data);
+        });
+
+        res.on("end", () => {
+          // Reconstruction des données à partir du buffer de la réponse
+          const body = Buffer.concat(offersInParts);
+          const result = JSON.parse(body);
+          resolve(result);
+        });
+      });
+
+      req.on("error", reject);
+      req.end();
+    });
+  } catch (error) {
+    throw error;
+  }
+};

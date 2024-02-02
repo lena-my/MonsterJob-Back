@@ -5,16 +5,17 @@ const router = express.Router();
 
 router.get("/:experience", async function (req, res) {
   try {
-    const idOffer = req.params.id;
-    const offerDetails = await getPoleEmploiOfferById(idOffer);
+    const experienceOffer = req.params.experience;
+    const offersDetails = await getPoleEmploiOfferByExperience(experienceOffer);
 
-    if (offerDetails) {
-      const offer = {
-        name: offerDetails.intitule,
-        level: offerDetails.experienceExige,
-        date: offerDetails.dateCreation,
-      };
-      res.send(offer);
+    if (offersDetails.resultats) {
+      const offers = offersDetails.resultats.map((elem) => ({
+        id: elem.id,
+        name: elem.intitule,
+        level: elem.experienceExige,
+        date: elem.dateCreation,
+      }));
+      res.send(offers);
     } else {
       res.send("Aucun détail trouvé pour cette offre.");
     }
