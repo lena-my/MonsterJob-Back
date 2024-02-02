@@ -1,5 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 
 require("dotenv").config();
@@ -7,10 +8,12 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(morgan("dev")).use(bodyParser.json());
+app.use(morgan("dev"));
+app.use(bodyParser.json());
+app.use(cors());
 
 let getOffer = require("./src/routes/getOffer");
-let getOffers = require("./src/routes/getOffers")
+let getOffers = require("./src/routes/getOffers");
 let getOfferById = require("./src/routes/getOfferById");
 
 app.use("/getOffer", getOffer);

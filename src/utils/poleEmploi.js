@@ -1,45 +1,61 @@
 const https = require("https");
 require("dotenv").config();
 
+let accessToken = null;
+
 // Récupérer le token d'accés à l'API de pole emploi
-function getAccessToken(callback) {
-  const CLIENT_ID = process.env.CLIENT_ID;
-  const CLIENT_SECRET = process.env.CLIENT_SECRET;
+function getAccessToken() {
+  return new Promise((resolve, reject) => {
+    const CLIENT_ID = process.env.CLIENT_ID;
+    const CLIENT_SECRET = process.env.CLIENT_SECRET;
 
-  const body = new URLSearchParams({
-    grant_type: "client_credentials",
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET,
-    scope: `application_${CLIENT_ID} api_offresdemploiv2 o2dsoffre`,
-  }).toString();
+    const body = new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      scope: `application_${CLIENT_ID} api_offresdemploiv2 o2dsoffre`,
+    }).toString();
 
-  const options = {
-    hostname: "entreprise.pole-emploi.fr",
-    port: 443,
-    path: "/connexion/oauth2/access_token?realm=%2Fpartenaire",
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-  };
+    const options = {
+      hostname: "entreprise.pole-emploi.fr",
+      port: 443,
+      path: "/connexion/oauth2/access_token?realm=%2Fpartenaire",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    };
 
-  const req = https.request(options, (res) => {
-    res.on("data", (token) => {
-      callback(JSON.parse(token));
+    const req = https.request(options, (res) => {
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+      res.on("end", () => {
+        try {
+          // Résous la promesse avec le token
+          resolve(JSON.parse(data).access_token);
+        } catch (error) {
+          // Rejete la promesse avec l'erreur
+          reject(error);
+        }
+      });
     });
-  });
 
-  req.write(body);
-  req.on("error", (error) => {
-    console.error(error);
-  });
+    req.on("error", reject);
 
-  req.end();
+    req.write(body);
+    req.end();
+  });
 }
 
 // Récupérer les offres d'emploi de l'API pole emploi
-exports.getPoleEmploiOffer = function getPoleEmploiOffer(callback) {
-  getAccessToken(function (token) {
+exports.getPoleEmploiOffer = async function getPoleEmploiOffer() {
+  try {
+    if (accessToken === null) {
+      accessToken = await getAccessToken();
+    }
+
     // Générer un nombre aléatoire entre 0 et 1000 pour récupérer une offre aléatoire
     const randomizer = Math.floor(Math.random() * 1000);
     const pathOffers = `/partenaire/offresdemploi/v2/offres/search?range=${randomizer}-${randomizer}&codeROM=M1810&departement=34&sort=1`;
@@ -49,35 +65,41 @@ exports.getPoleEmploiOffer = function getPoleEmploiOffer(callback) {
       path: pathOffers,
       method: "GET",
       headers: {
-        Authorization: "Bearer " + token.access_token,
+        Authorization: "Bearer " + accessToken,
       },
     };
 
-    const req = https.request(options, (res) => {
-      let offersInParts = [];
+    return await new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let offersInParts = [];
 
-      res.on("data", (data) => {
-        offersInParts.push(data);
+        res.on("data", (data) => {
+          offersInParts.push(data);
+        });
+
+        res.on("end", () => {
+          // Reconstruction des données à partir du buffer de la réponse
+          const body = Buffer.concat(offersInParts);
+          const result = JSON.parse(body);
+          resolve(result);
+        });
       });
 
-      res.on("end", (endOfRequest) => {
-        // Reconstruction des données à partir du buffer de la réponse
-        const body = Buffer.concat(offersInParts);
-        const result = JSON.parse(body);
-        callback(result);
-      });
+      req.on("error", reject);
+      req.end();
     });
-
-    req.on("error", (error) => {
-      console.error(error);
-    });
-    req.end();
-  });
+  } catch (error) {
+    throw error;
+  }
 };
 
 // Récupérer une offre d'emploi de l'API pole emploi à partir d'un id
-exports.getPoleEmploiOfferById = function getPoleEmploiOfferById(id, callback) {
-  getAccessToken(function (token) {
+exports.getPoleEmploiOfferById = async function getPoleEmploiOfferById(id) {
+  try {
+    if (accessToken === null) {
+      accessToken = await getAccessToken();
+    }
+
     const pathOffers = `/partenaire/offresdemploi/v2/offres/${id}`;
     const options = {
       hostname: "api.pole-emploi.io",
@@ -85,64 +107,71 @@ exports.getPoleEmploiOfferById = function getPoleEmploiOfferById(id, callback) {
       path: pathOffers,
       method: "GET",
       headers: {
-        Authorization: "Bearer " + token.access_token,
+        Authorization: "Bearer " + accessToken,
       },
     };
 
-    const req = https.request(options, (res) => {
-      let offersInParts = [];
+    return new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let offersInParts = [];
 
-      res.on("data", (data) => {
-        offersInParts.push(data);
+        res.on("data", (data) => {
+          offersInParts.push(data);
+        });
+
+        res.on("end", () => {
+          // Reconstruction des données à partir du buffer de la réponse
+          const body = Buffer.concat(offersInParts);
+          const result = JSON.parse(body);
+          resolve(result);
+        });
       });
 
-      res.on("end", (endOfRequest) => {
-        // Reconstruction des données à partir du buffer de la réponse
-        const body = Buffer.concat(offersInParts);
-        const result = JSON.parse(body);
-        callback(result);
-      });
+      req.on("error", reject);
+      req.end();
     });
-
-    req.on("error", (error) => {
-      console.error(error);
-    });
-    req.end();
-  });
+  } catch (error) {
+    throw error;
+  }
 };
 
-// Récupérer les offres d'emploi de l'API pole emploi sous forme paginée
-exports.getPoleEmploiOffers = function getPoleEmploiOffers(callback) {
-  getAccessToken(function (token) {
-    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?codeROM=M1810&departement=34`;
+// Récupérer les offres d'emploi de l'API
+exports.getPoleEmploiOffers = async function getPoleEmploiOffers() {
+  try {
+    if (accessToken === null) {
+      accessToken = await getAccessToken();
+    }
+
+    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?codeROM=M1810&departement=34&sort=1`;
     const options = {
       hostname: "api.pole-emploi.io",
       port: 443,
       path: pathOffers,
       method: "GET",
       headers: {
-        Authorization: "Bearer " + token.access_token,
+        Authorization: "Bearer " + accessToken,
       },
     };
+    return new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let offersInParts = [];
 
-    const req = https.request(options, (res) => {
-      let offersInParts = [];
+        res.on("data", (data) => {
+          offersInParts.push(data);
+        });
 
-      res.on("data", (data) => {
-        offersInParts.push(data);
+        res.on("end", () => {
+          // Reconstruction des données à partir du buffer de la réponse
+          const body = Buffer.concat(offersInParts);
+          const result = JSON.parse(body);
+          resolve(result);
+        });
       });
 
-      res.on("end", (endOfRequest) => {
-        // Reconstruction des données à partir du buffer de la réponse
-        const body = Buffer.concat(offersInParts);
-        const result = JSON.parse(body);
-        callback(result);
-      });
+      req.on("error", reject);
+      req.end();
     });
-
-    req.on("error", (error) => {
-      console.error(error);
-    });
-    req.end();
-  });
+  } catch (error) {
+    throw error;
+  }
 };
