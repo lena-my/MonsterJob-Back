@@ -15,12 +15,12 @@ app.use(cors());
 let getOffer = require("./src/routes/getOffer");
 let getOffers = require("./src/routes/getOffers");
 let getOfferById = require("./src/routes/getOfferById");
-let getOfferByExperience = require("./src/routes/getOfferByExperience");
+let getOffersByExperience = require("./src/routes/getOffersByExperience");
 
 app.use("/getOffer", getOffer);
 app.use("/getOffers", getOffers);
 app.use("/getOfferById", getOfferById);
-app.use("/getOfferByExperience", getOfferByExperience);
+app.use("/getOffersByExperience", getOffersByExperience);
 
 // On ajoute la gestion des erreurs 404
 app.use(({ res }) => {
