@@ -58,7 +58,7 @@ exports.getPoleEmploiOffer = async function getPoleEmploiOffer() {
 
     // Générer un nombre aléatoire entre 0 et 1000 pour récupérer une offre aléatoire
     const randomizer = Math.floor(Math.random() * 1000);
-    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?range=${randomizer}-${randomizer}&codeROME=M1810&departement=34&sort=1`;
+    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?range=${randomizer}-${randomizer}&codeROM=M1810&departement=34&sort=1`;
     const options = {
       hostname: "api.pole-emploi.io",
       port: 443,
@@ -142,7 +142,7 @@ exports.getPoleEmploiOffers = async function getPoleEmploiOffers() {
       accessToken = await getAccessToken();
     }
 
-    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?codeROME=M1810&departement=34&sort=1`;
+    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?codeROM=M1810&departement=34&sort=1`;
     const options = {
       hostname: "api.pole-emploi.io",
       port: 443,
@@ -177,44 +177,43 @@ exports.getPoleEmploiOffers = async function getPoleEmploiOffers() {
 };
 
 // Filtrer des offres d'emploi par experience
-exports.getPoleEmploiOffersByExperience =
-  async function getPoleEmploiOffersByExperience(experience) {
-    try {
-      if (accessToken === null) {
-        accessToken = await getAccessToken();
-      }
+exports.getPoleEmploiOfferByExperience = async function getPoleEmploiOfferByExperience(experience) {
+  try {
+    if (accessToken === null) {
+      accessToken = await getAccessToken();
+    }
 
-      const pathOffers = `/partenaire/offresdemploi/v2/offres/search?codeROME=M1810&departement=34&sort=1&experienceExigence=${experience}`;
-      const options = {
-        hostname: "api.pole-emploi.io",
-        port: 443,
-        path: pathOffers,
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + accessToken,
-        },
-      };
+    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?experienceExigence=${experience}`;
+    const options = {
+      hostname: "api.pole-emploi.io",
+      port: 443,
+      path: pathOffers,
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + accessToken,
+      },
+    };
 
-      return new Promise((resolve, reject) => {
-        const req = https.request(options, (res) => {
-          let offersInParts = [];
+    return new Promise((resolve, reject) => {
+      const req = https.request(options, (res) => {
+        let offersInParts = [];
 
-          res.on("data", (data) => {
-            offersInParts.push(data);
-          });
-
-          res.on("end", () => {
-            // Reconstruction des données à partir du buffer de la réponse
-            const body = Buffer.concat(offersInParts);
-            const result = JSON.parse(body);
-            resolve(result);
-          });
+        res.on("data", (data) => {
+          offersInParts.push(data);
         });
 
-        req.on("error", reject);
-        req.end();
+        res.on("end", () => {
+          // Reconstruction des données à partir du buffer de la réponse
+          const body = Buffer.concat(offersInParts);
+          const result = JSON.parse(body);
+          resolve(result);
+        });
       });
-    } catch (error) {
-      throw error;
-    }
-  };
+
+      req.on("error", reject);
+      req.end();
+    });
+  } catch (error) {
+    throw error;
+  }
+};

@@ -1,14 +1,12 @@
 const express = require("express");
-const { getPoleEmploiOffersByExperience } = require("../utils/poleEmploi");
+const { getPoleEmploiOfferByExperience } = require("../utils/poleEmploi");
 
 const router = express.Router();
 
 router.get("/:experience", async function (req, res) {
   try {
     const experienceOffer = req.params.experience;
-    const offersDetails = await getPoleEmploiOffersByExperience(
-      experienceOffer
-    );
+    const offersDetails = await getPoleEmploiOfferByExperience(experienceOffer);
 
     if (offersDetails.resultats) {
       const offers = offersDetails.resultats.map((elem) => ({
