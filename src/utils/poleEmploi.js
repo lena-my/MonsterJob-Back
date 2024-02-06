@@ -56,9 +56,7 @@ exports.getPoleEmploiOffer = async function getPoleEmploiOffer() {
       accessToken = await getAccessToken();
     }
 
-    // Générer un nombre aléatoire entre 0 et 1000 pour récupérer une offre aléatoire
-    const randomizer = Math.floor(Math.random() * 1000);
-    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?range=${randomizer}-${randomizer}&codeROME=M1810&departement=34&sort=1`;
+    const pathOffers = `/partenaire/offresdemploi/v2/offres/search?codeROME=M1810&departement=34&sort=1`;
     const options = {
       hostname: "api.pole-emploi.io",
       port: 443,

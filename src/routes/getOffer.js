@@ -6,13 +6,17 @@ const router = express.Router();
 router.get("/", async function (req, res) {
   try {
     const offerDetails = await getPoleEmploiOffer();
+    const nbOffers = offerDetails.resultats.length;
 
-    if (offerDetails.resultats[0]) {
+    // Générer un nombre aléatoire entre 0 et nbMax offres
+    const randomizer = Math.floor(Math.random() * nbOffers);
+
+    if (offerDetails.resultats[randomizer]) {
       const offer = {
-        id: offerDetails.resultats[0].id,
-        name: offerDetails.resultats[0].intitule,
-        level: offerDetails.resultats[0].experienceExige,
-        date: offerDetails.resultats[0].dateCreation,
+        id: offerDetails.resultats[randomizer].id,
+        name: offerDetails.resultats[randomizer].intitule,
+        level: offerDetails.resultats[randomizer].experienceExige,
+        date: offerDetails.resultats[randomizer].dateCreation,
       };
 
       res.send(offer);
