@@ -23,7 +23,7 @@
 1. Clone the repository:
 
 ```shell script
-git clone https://github.com/lena-my/hackaton-back.git
+git clone [https://github.com/lena-my/MonsterJob-Back.git]
 ```
 
 2. Install dependencies:
